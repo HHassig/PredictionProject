@@ -1,0 +1,98 @@
+Coursera Practical Machine Learning - Course Project
+==========================================================
+
+
+
+Given the test data, I have written a machine learning code to predict what activity an individual has preformed, based off of their tracker data.
+This was done using the caret library and randomForest, which allowed me to accurately predict the 20 quiz data cases. For repeatability, I have set the seed to 2017:
+
+
+```{r}
+library(Hmisc)
+library(caret)
+library(randomForest)
+library(foreach)
+library(doParallel)
+set.seed(2017)
+options(warn = -1)
+```
+
+The data is first loaded (both the training and test). #Div/0 becomes NA for conisistency:
+
+```{r}
+trainData <- read.csv("pml-training.csv", na.strings = c("#DIV/0!"))
+testData <- read.csv("pml-testing.csv", na.strings = c("#DIV/0!"))
+```
+
+Column 8 until the end are casted numerically to make things easier:
+
+```{r}
+for(i in c(8:ncol(trainData) - 1)) {
+  trainData[, i] = as.numeric(as.character(trainData[, i]))
+  }
+
+for(i in c(8:ncol(testData) - 1)) {
+  testData[, i] = as.numeric(as.character(testData[,i]))
+  }
+```
+
+Then, I remove blank columns and include only full columns, without timestamps and name:
+
+```{r}
+mainSet <- colnames(trainData[colSums(is.na(trainData)) == 0])[-(1:7)]
+modelData <- trainData[mainSet]
+mainSet
+```
+
+This is now the model we will use:
+
+```{r}
+ids <- createDataPartition(y = modelData$classe, p = 0.75, list = FALSE )
+training <- modelData[ids,]
+testing <- modelData[-ids,]
+```
+
+Build 5 RF's with 150 trees each, making use of parallel processing, speeding up the process greatly...
+
+```{r}
+registerDoParallel()
+x <- training[-ncol(training)]
+y <- training$classe
+
+rf <- foreach(ntree = rep(150, 6), .combine = randomForest::combine, .packages = 'randomForest') %dopar% {
+randomForest(x, y, ntree=ntree)
+}
+```
+
+Error reports for both training data and test data:
+
+```{r}
+predictions1 <- predict(rf, newdata = training)
+confusionMatrix(predictions1, training$classe)
+
+
+predictions2 <- predict(rf, newdata = testing)
+confusionMatrix(predictions2, testing$classe)
+```
+
+Conclusions
+--------------------------------
+20/20 on the quiz, the model is quite accurate.
+Hooray.
+
+```{r}
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+
+x <- testData
+x <- x[mainSet[mainSet!='classe']]
+answers <- predict(rf, newdata=x)
+
+answers
+```
