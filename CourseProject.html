@@ -200,7 +200,7 @@ y &lt;- training$classe
 rf &lt;- foreach(ntree = rep(150, 6), .combine = randomForest::combine, .packages = 'randomForest') %dopar% {
 randomForest(x, y, ntree=ntree)
 }</code></pre>
-<p>Error reports for both training data and test data:</p>
+<p>Error reports for both training data and test data. K-fold cross validation:</p>
 <pre class="r"><code>predictions1 &lt;- predict(rf, newdata = training)
 confusionMatrix(predictions1, training$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -242,9 +242,9 @@ confusionMatrix(predictions2, testing$classe)</code></pre>
 ## Prediction    A    B    C    D    E
 ##          A 1394    7    0    0    0
 ##          B    0  941    3    0    0
-##          C    0    1  851   10    1
-##          D    0    0    1  794    4
-##          E    1    0    0    0  896
+##          C    0    1  851   12    0
+##          D    0    0    1  792    3
+##          E    1    0    0    0  898
 ## 
 ## Overall Statistics
 ##                                           
@@ -259,14 +259,14 @@ confusionMatrix(predictions2, testing$classe)</code></pre>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9993   0.9916   0.9953   0.9876   0.9945
-## Specificity            0.9980   0.9992   0.9970   0.9988   0.9998
-## Pos Pred Value         0.9950   0.9968   0.9861   0.9937   0.9989
-## Neg Pred Value         0.9997   0.9980   0.9990   0.9976   0.9988
+## Sensitivity            0.9993   0.9916   0.9953   0.9851   0.9967
+## Specificity            0.9980   0.9992   0.9968   0.9990   0.9998
+## Pos Pred Value         0.9950   0.9968   0.9850   0.9950   0.9989
+## Neg Pred Value         0.9997   0.9980   0.9990   0.9971   0.9993
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2843   0.1919   0.1735   0.1619   0.1827
-## Detection Prevalence   0.2857   0.1925   0.1760   0.1629   0.1829
-## Balanced Accuracy      0.9986   0.9954   0.9962   0.9932   0.9971</code></pre>
+## Detection Rate         0.2843   0.1919   0.1735   0.1615   0.1831
+## Detection Prevalence   0.2857   0.1925   0.1762   0.1623   0.1833
+## Balanced Accuracy      0.9986   0.9954   0.9961   0.9920   0.9982</code></pre>
 <div id="conclusions" class="section level2">
 <h2>Conclusions</h2>
 <p>20/20 on the quiz, the model is quite accurate. Hooray.</p>

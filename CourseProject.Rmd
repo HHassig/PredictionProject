@@ -64,7 +64,8 @@ randomForest(x, y, ntree=ntree)
 }
 ```
 
-Error reports for both training data and test data:
+Error reports for both training data and test data.
+K-fold cross validation:
 
 ```{r}
 predictions1 <- predict(rf, newdata = training)
